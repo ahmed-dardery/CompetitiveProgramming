@@ -1,0 +1,43 @@
+#define all(v) ((v).begin(),(v).end())
+#define allr(v) ((v).rbegin(),(v).rend())
+#define sz(v) ((int)(v).size())
+typedef vector<int> vi;
+
+
+
+vecPrint(v)
+random_shuffle(all(v))
+replace(all(v),tobereplaced,by)
+replace(all(v),func,tobereplaced,by)
+search_n(all(v),count,value)
+find(all(v),value)
+
+//find where the subvector x exists
+search(all(v),all(x))
+
+
+/*/must be bsorted
+lower_bound(all(v),x)		//first element greater or equal
+upper_bound(all(v),x)		//first element strictly greater
+v.resize(unique(all(v)) - v.begin())	//for a sorted vector, return with no duplicates
+
+set_intersection(all(v1),all(v2),back_inserter(v))	//put the intersection in v
+
+set_difference(all(v1),all(v2),back_inserter(v))	//put the v1-v2 in v
+
+set_union(all(v1),all(v2),back_inserter(v))	//put the union in v (SHOWS DUPLICATES)
+
+next_permutation(all(v))
+
+/*/
+
+max_element(all(v))
+min_element(all(v))
+swap_range(r1start,r1end,e2start)
+
+accumulate(all(v),initial)
+accumulate(all(v),initial,multiplies<int>())	//product
+
+
+
+vector comparison?
