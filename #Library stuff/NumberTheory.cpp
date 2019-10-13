@@ -81,27 +81,28 @@ ll eGCD(ll a, ll b, ll &x0, ll &y0) {
 	return a;
 }
 //Solves (aX + bY = c) as long as c == m * GCD(a,b)
-//returns solvable
+//returns solvable, x, y are out paramters so the equation is solved with x (or y) as the minimum possible integer.
 //general form: (X = x + k*b/g), (Y = y - k*a/g)
 
 //that means either y = y * c + ((x * (c - 1)) / b) * a;
 //				or  x = x * c + ((y * (c - 1)) / a) * b;
-bool LDE(ll a, ll b, ll &x, ll &y, ll c, ll &g) {
-	g = eGCD(a, b, x, y);
-	if (c % g) return false;
+bool LDE(ll a, ll b, ll &x, ll &y, ll c, ll &g, bool minimizex) {
+    g = eGCD(a, b, x, y);
+    if (c % g) return false;
 
-	a /= g, b /= g, c /= g;		//we can reduce all of them by dividing by the GCD
-	
-	//we should multiply by (c/g) but we already divided by g so we will multiply by only c
-	//We will calculate a new value for x:
-	x = MODN(x * c, b);
+    a /= g, b /= g, c /= g;		//we can reduce all of them by dividing by the GCD
 
-	//This line is useless for CRT since we don't use y
-	//But it uses the two general form formula to calculate the corresponding value of y
-	y = (c - a * x) / b;
-	x = (c - b * y) / a;
+    if (minimizex) {
+        x = mul(x, c, b);
+        if (x < 0) x = (x + b) % b;
+        y = (c - a * x) / b;
+    } else {
+        y = mul(y, c, a);
+        if (y < 0) y = (y + a) % a;
+        x = (c - b * y) / a;
+    };
 
-	return true;
+    return true;
 }
 //Merges (X % m1 = r1) and (X % m2 = r2) into (X % m = r)
 //returns solvable
@@ -148,7 +149,8 @@ ll countFactorialFactors(ll n, ll p) {
 	ll count = 0;
 	while (n)
 		count += (n /= p);
-	
+
+	return count;
 }
 
 ll combmem[100][100];
@@ -236,4 +238,8 @@ void gauss() {
 //counts numbers between s and e (inclusive) where n % x == m
 ll count_mod_x(ll x, ll s, ll e, ll m) {
 	return (e - s + x - ((m - s) % x + x) % x) / x;
+}
+
+ll count_new(ll x, ll e, ll m) {
+    return e / x + (m > 0 && m <= e-e/x*x);
 }
