@@ -2,6 +2,7 @@
 	Number Theory Basics
 */
 #include <bits/stdc++.h>
+#include <vector>
 using namespace std;
 
 typedef long long ll;
@@ -32,7 +33,7 @@ int prime[N];
 void sieve() {
 	memset(prime, 1, sizeof prime);
 	prime[0] = prime[1] = 0;
-	for (int i = 2; i <= N / i; i += 1 + (i % 1)) {
+	for (int i = 2; i <= N / i; i += 1 + (i & 1)) {
 		if (prime[i])
 			for (int j = i * i; j <= N; j += i)
 				prime[j] = 0;
@@ -86,21 +87,20 @@ ll eGCD(ll a, ll b, ll &x0, ll &y0) {
 
 //that means either y = y * c + ((x * (c - 1)) / b) * a;
 //				or  x = x * c + ((y * (c - 1)) / a) * b;
-bool LDE(ll a, ll b, ll &x, ll &y, ll c, ll &g, bool minimizex) {
+bool LDE(ll a, ll b, ll &x, ll &y, ll c, ll &g) {
     g = eGCD(a, b, x, y);
     if (c % g) return false;
 
     a /= g, b /= g, c /= g;		//we can reduce all of them by dividing by the GCD
 
-    if (minimizex) {
-        x = mul(x, c, b);
-        if (x < 0) x = (x + b) % b;
-        y = (c - a * x) / b;
-    } else {
-        y = mul(y, c, a);
-        if (y < 0) y = (y + a) % a;
-        x = (c - b * y) / a;
-    };
+	//smallest positive x
+    x = x * c % b;
+    if (b > 0) x = (x + b) % b;
+    else if (x < 0) {
+        ll k = (x + b - 1) / b;
+        x -= k * b;
+    }
+    y = (c - a * x) / b;
 
     return true;
 }
@@ -135,7 +135,8 @@ ll modInverse(ll &x, ll mod) {
 }
 
 ll power(ll x, ll p, ll m) {
-	p = p % (m - 1);
+	//fermat's little theorem
+	//p = p % (m - 1);
 	ll res = 1;
 	while (p) {
 		if (p & 1) res = (res * x) % m;
@@ -159,7 +160,7 @@ ll Combination(int n, int k) {
 	if (k == 0) return 1;
 	ll & ret = combmem[n][k];
 	if (ret != 0) return ret;
-	else return Combination(n - 1, k - 1) + Combination(n - 1, k);
+	else return ret = Combination(n - 1, k - 1) + Combination(n - 1, k);
 }
 //phi(p) = p-1 <- p is prime
 ll phi(ll x) {
@@ -234,6 +235,18 @@ void gauss() {
 		}
 	}
 }
+
+// Returns count of numbers in [A B] that 
+// are divisible by M. 
+int countDivisibles(int A, int B, int M) 
+{ 
+    // Add 1 explicitly as A is divisible by M 
+    if (A % M == 0) 
+        return (B / M) - (A / M) + 1; 
+  
+    // A is not divisible by M 
+    return (B / M) - (A / M); 
+} 
 
 //counts numbers between s and e (inclusive) where n % x == m
 ll count_mod_x(ll x, ll s, ll e, ll m) {

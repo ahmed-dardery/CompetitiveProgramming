@@ -12,11 +12,11 @@ void add_edge(int f, int t) {
 void add_biedge(int a, int b) { add_edge(a, b), add_edge(b, a); }
 #define neigh(u,e,v) for(int e = head[u], v ; v = to[e], ~e ; e = nxt[e])
 
-int stcksz[N], par[N], sets;
+int sz[N], par[N], sets;
 
 void init(int n) {
 	iota(par, par + n, 0);
-	fill(stcksz, stcksz + n, 1);
+	fill(sz, sz + n, 1);
 	sets = n;
 }
 
@@ -27,22 +27,22 @@ int find(int u) {
 void join(int a, int b) {
 	a = find(a), b = find(b);
 	if (a == b)	return;
-	if (stcksz[a] < stcksz[b])	swap(a, b);		//optional
-	stcksz[a] += stcksz[b];						//remove if no size
+	if (sz[a] < sz[b])	swap(a, b);		//optional
+	sz[a] += sz[b];						//remove if no size
 	par[b] = a;
 	--sets;
 }
 
 bool bellman(int src) {
-	memset(best, OO, sizeof best);
-	best[src] = 0;
-	int x = nNodes;
+	memset(dis, OO, sizeof dis);
+	dis[src] = 0;
+	int x = n;
 	while (x--) {
 		for (int e = 0; e < ne; e++) {
 			int u = from[e], v = to[e], c = cst[e];
-			if (best[u] + c < best[v]) {
+			if (dis[u] + c < dis[v]) {
 				if (!x)	return 0;
-				best[v] = best[u] + c;
+				dis[v] = dis[u] + c;
 			}
 		}
 	}
@@ -55,22 +55,22 @@ bool inbounds(int ni, int nj) {
 	return (ni >= 0 && ni < n && nj >= 0 && nj < m);
 }
 
-int best[N];
+int dis[N];
 void dijkstra(int f) {
-	memset(best + 1, OO, nNodes * sizeof best[0]);
+	memset(dis + 1, OO, n * sizeof dis[0]);
 	priority_queue<pii> q;
-	best[f] = 0;
+	dis[f] = 0;
 	q.emplace(0, f);
 	while (!q.empty()) {
 		int u = q.top().second;
 		int d = -q.top().first;
 		q.pop();
-		if (d != best[u]) continue;
+		if (d != dis[u]) continue;
 		for (int e = head[u]; ~e; e = nxt[e]) {
 			int v = to[e], c = cst[e];
-			int nd = best[u] + c;
-			if (nd < best[v]) {
-				best[v] = nd;
+			int nd = dis[u] + c;
+			if (nd < dis[v]) {
+				dis[v] = nd;
 				q.emplace(-nd, v);
 			}
 		}
@@ -79,13 +79,13 @@ void dijkstra(int f) {
 
 int dfst, visidx[N], lowlink[N], cmpid[N], cmpn;
 int stck[N], stcksz = 0;
-void sccdfs(int u) {
+void sccbfs(int u) {
 
 	visidx[u] = lowlink[u] = dfst++;
 	stck[stcksz++] = u;
 	for (int e = head[u], v; v = to[e], ~e; e = nxt[e]) {
 		if (visidx[v] == -1) {
-			sccdfs(v);
+			sccbfs(v);
 			lowlink[u] = min(lowlink[u], lowlink[v]);
 		}
 		else if (cmpid[v] == -1) {	//not cross edge
@@ -100,34 +100,14 @@ void sccdfs(int u) {
 		cmpn++;
 	}
 }
-void bcc() {
-	memset(visidx, -1, nNodes * sizeof visidx[0]);
-	memset(lowlink, -1, nNodes * sizeof lowlink[0]);
-	memset(cmpid, -1, nNodes * sizeof cmpid[0]);
+void scc() {
+	memset(visidx, -1, n * sizeof visidx[0]);
+	memset(lowlink, -1, n * sizeof lowlink[0]);
+	memset(cmpid, -1, n * sizeof cmpid[0]);
 	cmpn = dfst = stcksz = 0;
 	for (int i = 0; i < n; i++) {
 		if (visidx[i] == -1)
-			sccdfs(i);
-	}
-}
-
-
-//bridgify
-bool bridge[M];
-void bccdfs(int u, int p) {
-
-	visidx[u] = lowlink[u] = dfst++;
-	for (int e = head[u], v; v = to[e], ~e; e = nxt[e]) {
-		if (visidx[v] == -1) {
-			bccdfs(v, u);
-			lowlink[u] = min(lowlink[u], lowlink[v]);
-			if (lowlink[v] > visidx[u]) {
-				bridge[e] = bridge[e ^ 1] = 1;
-			}
-		}
-		else if (v != p) {
-			lowlink[u] = min(lowlink[u], visidx[v]);
-		}
+			sccbfs(i);
 	}
 }
 
@@ -138,29 +118,29 @@ void bccdfs(int u, int p) {
 
 
 
-int vis[N], vid, q[N], qsz, best[N];
+
+
 
 
 bool bfs() {
 	++vid;
 	qsz = 0;
 	q[qsz++] = src;
-	memset(best, OO, nNodes * sizeof best[0]);
-	best[src] = 0;
+	memset(dis, OO, n * sizeof dis[0]);
+	dis[src] = 0;
 	vis[src] = vid;
 	for (int k = 0; k < qsz; ++k) {
 		int u = q[k];
 		for (int e = head[u], v; v = to[e], ~e; e = nxt[e]) {
 			if (vis[v] == vid || cap[e] == 0) continue;
 			vis[v] = vid;
-			best[v] = best[u] + 1;
+			dis[v] = dis[u] + 1;
 			if (v == snk) return 1;
 			q[qsz++] = v;
 		}
 	}
 	return 0;
 }
-
 int flowdfs(int u, int mn) {
 	if (u == snk)
 		return mn;
@@ -172,7 +152,7 @@ int flowdfs(int u, int mn) {
 	for (int &e = work[u]; ~e; e = nxt[e]) {
 		int v = to[e];
 
-		if (best[v] != best[u] + 1 )
+		if (dis[v] != dis[u] + 1 )
 			continue;
 		int f = flowdfs(v, min(mn, cap[e]));
 		if (f) {
@@ -184,12 +164,10 @@ int flowdfs(int u, int mn) {
 
 	return 0;
 }
-
-
 int max_flow() {
 	int f = 0;
 	while (bfs()) {
-		memcpy(work, head, nNodes * sizeof head[0]);
+		memcpy(work, head, n * sizeof head[0]);
 		++vid;
 		while (int chg = flowdfs(src, OO)) {
 			f += chg;
@@ -200,30 +178,29 @@ int max_flow() {
 	return f;
 }
 
-//or
 
 
-ll best[N];
+ll dis[N];
 int parEdge[N];
 bool bellman(int src) {
-	memset(best, OO, sizeof best);
-	best[src] = 0;
+	memset(dis, OO, sizeof dis);
+	dis[src] = 0;
 	parEdge[src] = -1;
 
-	int x = nNodes;
+	int x = N;
 	while (x--) {
 		for (int e = 0; e < ne; e++) {
 			if (!cap[e]) continue;
 			int u = to[e ^ 1], v = to[e];
 			ll c = cst[e];
-			if (best[u] + c < best[v]) {
+			if (dis[u] + c < dis[v]) {
 				if (!x)	assert(0);
-				best[v] = best[u] + c;
+				dis[v] = dis[u] + c;
 				parEdge[v] = e;
 			}
 		}
 	}
-	return best[snk] != OO;
+	return dis[snk] != OO;
 }
 ll augment() {
 	int e;
@@ -254,4 +231,45 @@ ll flow() {
 		f += chg;
 	}
 	return f;
+}
+
+
+int depth[N];
+int par[N][LG];
+
+void dfs(int u, int p) {
+    for (auto &v : adj[u]) {
+        if (v == p) continue;
+        par[v][0] = u;
+        depth[v] = depth[u] + 1;
+        dfs(v, u);
+    }
+}
+
+void initLCA(int root) {
+    memset(par, -1, LG * (n + 1) * sizeof(int));
+    depth[root] = 0;
+    dfs(root, -1);
+
+    for (int i = 0; i < n; ++i)
+        for (int l = 1; l < LG; ++l)
+            if (~par[i][l - 1])
+                par[i][l] = par[par[i][l - 1]][l - 1];
+}
+
+int LCA(int u, int v) {
+    if (depth[u] < depth[v]) swap(u, v);
+    int diff = depth[u] - depth[v];
+    for (int i = 0; diff; ++i) {
+        if (diff & 1) u = par[u][i];
+        diff >>= 1;
+    }
+    if (u == v) return u;
+    for (int i = LG - 1; ~i; --i) {
+        if (par[u][i] != par[v][i]) {
+            u = par[u][i];
+            v = par[v][i];
+        }
+    }
+    return par[u][0];
 }

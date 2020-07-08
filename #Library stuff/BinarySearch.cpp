@@ -13,7 +13,7 @@ double BS_double() {
 }
 //FFFFFFFFFTTTTTTTTTT
 ll BS_first() {
-	ll st = 0, en = 1e18;
+	ll st = 0, en = 1e18 + 1;
 	ll mid;
 	while (st < en) {
 		mid = st + (en - st) / 2;
@@ -25,7 +25,7 @@ ll BS_first() {
 }
 //TTTTTTTTTTFFFFFFFFFFF
 ll BS_last() {
-	ll st = 0, en = 1e18;
+	ll st = -1, en = 1e18;
 	ll mid;
 	while (st < en) {
 		mid = st + (en - st + 1) / 2;
@@ -34,4 +34,35 @@ ll BS_last() {
 		else
 			en = mid - 1;
 	}
+}
+
+
+//FFFFFFFFFFFTTTTTTTTTTTTT
+
+void PBS(int st, int en, int lf, int rt) {
+    if (rt < lf) return;
+    if (st == en) {
+        for (int i = lf; i <= rt; ++i) {
+            answer[sorted[i]] = st;
+        }
+        return;
+    }
+
+    int md = (st + en) / 2;
+
+    while(curT > md){
+        --curT;
+        rollback();
+    }
+    while(curT > md){
+        perform();
+        ++curT;
+    }
+
+    int pivot = partition(sorted + lf, sorted + rt + 1, [](int v) {
+        return ok(v, md);
+    }) - statSort;
+
+    PBS(st, md, lf, pivot - 1);
+    PBS(md + 1, en, pivot, rt);
 }
