@@ -7,6 +7,8 @@ using namespace std;
 
 typedef long long ll;
 
+//TODO: somehow if a^x == 1 MOD p then a^(x/2) = -1 MOD p according to millar rabin
+
 //Doesn't sort
 vector<int> divisors(int n) {
 	vector<int> v;
