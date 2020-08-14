@@ -81,6 +81,16 @@ ll eGCD(ll a, ll b, ll &x0, ll &y0) {
 
 	return a;
 }
+
+//calculates a^-1 % m
+ll modInverse(ll a, ll m) {
+    ll x, y;
+    ll g = eGCD(a, m, x, y);
+    assert(g == 1);
+
+    return (x % m + m) % m;
+}
+	
 //Solves (aX + bY = c) as long as c == m * GCD(a,b)
 //returns solvable, x, y are out paramters so the equation is solved with x (or y) as the minimum possible integer.
 //general form: (X = x + k*b/g), (Y = y - k*a/g)
