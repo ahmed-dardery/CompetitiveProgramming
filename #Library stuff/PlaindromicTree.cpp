@@ -7,7 +7,7 @@
 
 using namespace std;
 typedef long long ll;
-const int N = 1e5, M = N, A = 128;
+const int N = 1e5+7, M = N, A = 128;
 
 
 struct PlainTree {
