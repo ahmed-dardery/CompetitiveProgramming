@@ -7,6 +7,8 @@ using namespace std;
 
 typedef long long ll;
 
+//TODO: somehow if a^x == 1 MOD p then a^(x/2) = -1 MOD p according to millar rabin
+
 //Doesn't sort
 vector<int> divisors(int n) {
 	vector<int> v;
@@ -38,6 +40,24 @@ void sieve() {
 			for (int j = i * i; j <= N; j += i)
 				prime[j] = 0;
 	}
+}
+
+const int NN = 1e6 + 7;
+int comp[NN], primes[NN], cnt;
+
+//For a number v = p * x where p is the smallest prime factor in v, x marks v with p
+void sieveLinear() {
+    cnt = 0;
+    int op = 0;
+    for (int i = 2; i <= NN; ++i) {
+        int &x = comp[i];
+        if (!x) primes[cnt++] = x = i, op++;
+        for (int j = 0; primes[j] <= NN / i; j++) {
+            op++;
+            comp[i * primes[j]] = primes[j];
+            if (primes[j] >= x) break;
+        }
+    }
 }
 
 vector<pair<int, int>> factorize(int n) {
@@ -81,6 +101,18 @@ ll eGCD(ll a, ll b, ll &x0, ll &y0) {
 
 	return a;
 }
+
+//calculates a^-1 % m
+//Alternative modInverse(x,p) = x^(phi(p)-1) if p and x are coprime
+//Or modInverse(x,p) = x^(p-2) p is prime;
+ll modInverse(ll a, ll m) {
+    ll x, y;
+    ll g = eGCD(a, m, x, y);
+    assert(g == 1);
+
+    return (x % m + m) % m;
+}
+	
 //Solves (aX + bY = c) as long as c == m * GCD(a,b)
 //returns solvable, x, y are out paramters so the equation is solved with x (or y) as the minimum possible integer.
 //general form: (X = x + k*b/g), (Y = y - k*a/g)
@@ -124,14 +156,6 @@ bool CRT(const ll m[], const ll r[], int n, ll &m0, ll &r0) {
 		if (!combine(m0, r0, m[i], r[i])) return false;
 
 	return true;
-}
-
-//Alternative modInverse(x,p) = x^(phi(p)-1) if p and x are coprime
-//Or modInverse(x,p) = x^(p-2) p is prime;
-ll modInverse(ll &x, ll mod) {
-	ll res,y;
-	if (!LDE(x, mod, res, y, 1)) return -1;
-	return res;
 }
 
 ll power(ll x, ll p, ll m) {
@@ -255,4 +279,38 @@ ll count_mod_x(ll x, ll s, ll e, ll m) {
 
 ll count_new(ll x, ll e, ll m) {
     return e / x + (m > 0 && m <= e-e/x*x);
+}
+
+
+//solves a^x % m = b
+ll discreteLog(ll a, ll b, ll m, bool allowZero = 1) {
+    a %= m;
+    ll alpha = 1, add = 0, g;
+    if (allowZero && b == 1) return 0;
+    while ((g = __gcd(a, m)) > 1) {
+        if (b % g) return -1;
+        b /= g, m /= g, ++add;
+        alpha = 1ll * alpha * (a / g) % m;
+        if (b == alpha) return add;
+    }
+    //b = 1ll * b * modInverse(alpha, m) % m;
+    ll n = round(ceil(sqrt(m - 1)));
+
+    ll b_aj = b;
+    unordered_map<ll, ll> store;
+    for (ll j = 0; j < n; ++j) {
+        store[b_aj] = j;
+        b_aj = b_aj * a % m;
+    }
+
+    ll an = power(a, n, mul(m));
+    ll ain = alpha * an % m;
+    for (ll i = 1; i <= n; ++i) {
+        auto it = store.find(ain);
+        if (it != store.end())
+            return i * n - it->second + add;
+
+        ain = ain * an % m;
+    }
+    return -1;
 }
