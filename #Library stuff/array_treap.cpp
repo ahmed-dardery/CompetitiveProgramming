@@ -1,3 +1,14 @@
+
+mt19937 rng;
+
+struct node {
+    int val, pr, sz;
+    bool lz = 0;
+    node *lf = 0, *rt = 0;
+
+    node(int val) : val(val), sz(1), pr(rng()) {}
+};
+
 class treap {
 private:
     node *root = nullptr;
@@ -6,13 +17,24 @@ private:
         return u ? u->sz : 0;
     }
 
+    void pushDown(node *u) {
+        if (u && u->lz) {
+            if (u->rt) u->rt->lz = !u->rt->lz;
+            if (u->lf) u->lf->lz = !u->lf->lz;
+            swap(u->lf, u->rt);
+            u->lz = 0;
+        }
+    }
+
     void updateNode(node *u) {
+        pushDown(u);
         if (u) {
             u->sz = 1 + cnt(u->lf) + cnt(u->rt);
         }
     }
 
     void split(node *u, int preSz, node *&lf, node *&rt) {
+        pushDown(u);
         if (!u) return lf = rt = 0, void();
         int szLf = cnt(u->lf);
         if (szLf < preSz)
@@ -23,6 +45,7 @@ private:
     }
 
     void merge(node *lf, node *rt, node *&u) {
+        pushDown(lf), pushDown(rt);
         if (!lf || !rt) u = lf ? lf : rt;
         else if (lf->pr > rt->pr) merge(lf->rt, rt, lf->rt), u = lf;
         else merge(lf, rt->lf, rt->lf), u = rt;
@@ -31,13 +54,15 @@ private:
 
 
     void dfs(node *u) {
+        pushDown(u);
         if (!u) return;
         dfs(u->lf);
-        cout << u->val << " ";
+        printf("%d ", u->val);
         dfs(u->rt);
     }
 
     int &kth(node *u, int k) {
+        pushDown(u);
         //if (!u) return -1;
         int szLf = cnt(u->lf);
         if (szLf > k) return kth(u->lf, k);
@@ -63,7 +88,7 @@ public:
 
     void print() {
         dfs(root);
-        cout << endl;
+        puts("");
     }
 
     int &operator[](int i) {
@@ -72,7 +97,7 @@ public:
 
     void cycleShiftRight(int qs, int qe, int v) {
         node *lf, *md, *rt, *x, *y;
-        split(root, qe, lf, rt);
+        split(root, qe + 1, lf, rt);
         split(lf, qs, lf, md);
 
         split(md, md->sz - v, x, y);
@@ -82,4 +107,14 @@ public:
         merge(lf, rt, root);
     }
 
+    void reverse(int qs, int qe) {
+        node *lf, *md, *rt, *x, *y;
+        split(root, qe + 1, lf, rt);
+        split(lf, qs, lf, md);
+
+        if (md) md->lz = !md->lz;
+
+        merge(lf, md, lf);
+        merge(lf, rt, root);
+    }
 };
