@@ -47,3 +47,37 @@ void IFFT(valarray<comp> &X) {
     FFT(X, 1);
     X /= comp(X.size());
 }
+
+typedef valarray<complex<long double>> valcomp;
+
+valarray<long long> mulPoly(const valarray<int> &a, const valarray<int> &b) {
+    int szRes = a.size() + b.size() - 1;
+    int N = (1 << (int) ceil(log2(szRes)));
+    valcomp ab(N);
+    int mn = min(a.size(), b.size()), mx = max(a.size(), b.size());
+    for (int i = 0; i < mn; ++i)
+        ab[i] = complex<long double>(a[i], b[i]);
+    for (int i = mn; i < a.size(); ++i)
+        ab[i] = complex<long double>(a[i], 0);
+    for (int i = mn; i < b.size(); ++i)
+        ab[i] = complex<long double>(0, b[i]);
+
+    FFT(ab);
+    valcomp abREV = ab;
+    abREV *= abREV;
+    valcomp abREVCONJ = abREV;
+    for (auto &x : abREVCONJ) x = conj(x);
+
+    valcomp res(N);
+    for (int i = 0; i < N; ++i) {
+        int j = (N - i) & (N - 1);
+        res[i] = (abREV[j] - abREVCONJ[i]) / complex<long double>(0, 4 * N);
+    }
+
+    FFT(res);
+    valarray<long long> ret(N);
+    for (int i = 0; i < N; ++i)
+        ret[i] = (long long) llround(res[i].real());
+
+    return ret;
+}
