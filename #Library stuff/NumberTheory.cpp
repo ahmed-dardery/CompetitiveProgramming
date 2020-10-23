@@ -314,3 +314,37 @@ ll discreteLog(ll a, ll b, ll m, bool allowZero = 1) {
     }
     return -1;
 }
+
+int mod(ll x) {
+    while (x < 0)
+        x += MOD;
+    return (x % MOD);
+}
+//find how many times x! divides p
+int cntFact(int n, int p) {
+    int count = 0;
+    while (n)
+        count += (n /= p);
+
+    return count;
+}
+
+int power(int x, int p) {
+    int ans = 1;
+    while (p) {
+        if (p & 1) ans = (1ll * ans * x) % MOD;
+        x = 1ll * (x * x) % MOD;
+        p >>= 1;
+    }
+    return ans;
+}
+
+//choose mod composite
+int C(int n, int r) {
+    int ans = 1;
+    for (int i = 0; prime[i] <= n; i++) {
+        int pw = cntFact(n, prime[i]) - cntFact(r, prime[i]) - cntFact(n - r, prime[i]);
+        ans = mod(ans * 1LL * power(prime[i], pw));
+    }
+    return ans;
+}
