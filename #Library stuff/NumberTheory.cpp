@@ -43,16 +43,16 @@ void sieve() {
 }
 
 const int NN = 1e6 + 7;
-int comp[NN], primes[NN], cnt;
+int comp[NN + 1], primes[NN + 1], cnt;
 
 //For a number v = p * x where p is the smallest prime factor in v, x marks v with p
 void sieveLinear() {
     cnt = 0;
     int op = 0;
-    for (int i = 2; i < NN; ++i) {
+    for (int i = 2; i <= NN; ++i) {
         int &x = comp[i];
         if (!x) primes[cnt++] = x = i, op++;
-        for (int j = 0; primes[j] < NN / i; j++) {
+        for (int j = 0; primes[j] <= NN / i; j++) {
             op++;
             comp[i * primes[j]] = primes[j];
             if (primes[j] >= x) break;
