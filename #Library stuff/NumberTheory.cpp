@@ -49,10 +49,10 @@ int comp[NN], primes[NN], cnt;
 void sieveLinear() {
     cnt = 0;
     int op = 0;
-    for (int i = 2; i <= NN; ++i) {
+    for (int i = 2; i < NN; ++i) {
         int &x = comp[i];
         if (!x) primes[cnt++] = x = i, op++;
-        for (int j = 0; primes[j] <= NN / i; j++) {
+        for (int j = 0; primes[j] < NN / i; j++) {
             op++;
             comp[i * primes[j]] = primes[j];
             if (primes[j] >= x) break;
