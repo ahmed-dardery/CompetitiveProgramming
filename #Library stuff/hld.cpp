@@ -1,58 +1,52 @@
-void szdfs(int u, int p) {
-    sz[u] = 1;
-    bigChild[u] = -1;
-    par[u] = p;
-    int mxChild = 0;
-    neigh(u, e, v) {
-        if (v == p) continue;
-        depth[v] = depth[u] + 1;
-        szdfs(v, u);
-        sz[u] += sz[v];
-        if (sz[v] > mxChild) {
-            mxChild = sz[v];
-            bigChild[u] = v;
+//modified from kactl
+typedef vector<int> vi;
+template<bool VALS_EDGES>
+struct HLD {
+    int N, tim = 0;
+    vector<vi> adj;
+    vi par, siz, depth, rt, pos;
+    SegmentTree tree;
+    HLD(const vector<vi> &adj_) : N(adj_.size()), adj(adj_), par(N, -1), siz(N, 1), depth(N),
+                                  rt(N), pos(N), tree(N) {
+        dfsSz(0);
+        dfsHld(0);
+    }
+    void dfsSz(int v) {
+        if (par[v] != -1) adj[v].erase(find(adj[v].begin(), adj[v].end(), par[v]));
+        for (int &u : adj[v]) {
+            par[u] = v, depth[u] = depth[v] + 1;
+            dfsSz(u);
+            siz[v] += siz[u];
+            if (siz[u] > siz[adj[v][0]]) swap(u, adj[v][0]);
         }
     }
-}
-
-
-int chainHead[N], chainSz[N];
-
-void hld(int u, int chain_head) {
-    if (u == chain_head) chainSz[u] = 0;
-    ++chainSz[chain_head];
-    chainHead[u] = chain_head;
-
-    dfsAt[dfsTime[u] = dfst++] = u;
-
-    if (~bigChild[u]) hld(bigChild[u], chain_head);
-    neigh(u, e, v) {
-        if (v == par[u] || v == bigChild[u]) continue;
-        hld(v, v);
+    void dfsHld(int v) {
+        pos[v] = tim++;
+        for (int u : adj[v]) {
+            rt[u] = (u == adj[v][0] ? rt[v] : u);
+            dfsHld(u);
+        }
     }
-}
-
-void pathUpdate(int u, int v, int newVal) {
-    while (chainHead[u] != chainHead[v]) {
-        if (depth[chainHead[u]] < depth[chainHead[v]]) swap(u, v);
-        update(dfsTime[chainHead[u]], dfsTime[u], newVal);
-        u = par[chainHead[u]];
+    template<class B>
+    void process(int u, int v, B op) {
+        for (; rt[u] != rt[v]; v = par[rt[v]]) {
+            if (depth[rt[u]] > depth[rt[v]]) swap(u, v);
+            op(pos[rt[v]], pos[v]);
+        }
+        if (depth[u] > depth[v]) swap(u, v);
+        op(pos[u] + VALS_EDGES, pos[v]);
     }
-    if (depth[u] < depth[v]) swap(u, v);
-    update(dfsTime[v], dfsTime[u], newVal);
-}
-
-int pathQuery(int u, int v) {
-    node uPath, vPath;
-    while (chainHead[u] != chainHead[v]) {
-        if (depth[chainHead[u]] < depth[chainHead[v]]) swap(u, v), swap(uPath, vPath);
-        node q = query(dfsTime[chainHead[u]], dfsTime[u]);
-        swap(q.suf, q.pre);
-        uPath = node(uPath, q);
-        u = par[chainHead[u]];
+    void modifyPath(int u, int v, int val) {
+        process(u, v, [&](int l, int r) { tree.add(l, r, val); });
     }
-    if (depth[u] < depth[v]) swap(u, v), swap(uPath, vPath);
-    node q = query(dfsTime[v], dfsTime[u]);
-    swap(uPath.suf, uPath.pre);
-    return node(node(vPath, q), uPath).mx;
-}
+    int queryPath(int u, int v) {
+        int res = 0;
+        process(u, v, [&](int l, int r) {
+            res = operation(res, tree.query(l, r));
+        });
+        return res;
+    }
+    int querySubtree(int v) {
+        return tree.query(pos[v] + VALS_EDGES, pos[v] + siz[v] - 1);
+    }
+};
