@@ -111,27 +111,27 @@ void scc() {
 	}
 }
 
-int depth[N];
-int par[N][LG];
+int depth[N], par[N][LG];
 
 void dfs(int u, int p) {
+    par[u][0] = p;
     for (auto &v : adj[u]) {
         if (v == p) continue;
-        par[v][0] = u;
         depth[v] = depth[u] + 1;
         dfs(v, u);
     }
 }
 
-void initLCA(int root) {
-    memset(par, -1, LG * (n + 1) * sizeof(int));
+void initLCA(int root, int nNodes) {
     depth[root] = 0;
     dfs(root, -1);
 
-    for (int i = 0; i < n; ++i)
-        for (int l = 1; l < LG; ++l)
+    for (int l = 1; l < LG; ++l)
+        for (int i = 0; i < nNodes; ++i)
             if (~par[i][l - 1])
                 par[i][l] = par[par[i][l - 1]][l - 1];
+            else
+                par[i][l] = -1;
 }
 
 int LCA(int u, int v) {
