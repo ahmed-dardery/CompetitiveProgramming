@@ -39,6 +39,8 @@ ll BS_last() {
 
 //FFFFFFFFFFFTTTTTTTTTTTTT
 
+//Use when the ok function for BS does N iterations, but you have M queries
+//PBS(0, m-1, 0, n-1)
 void PBS(int st, int en, int lf, int rt) {
     if (rt < lf) return;
     if (st == en) {
@@ -52,10 +54,10 @@ void PBS(int st, int en, int lf, int rt) {
 
     while(curT > md){
         --curT;
-        rollback();
+        rollback(); //equivalent of one backward iteration in the ok function
     }
     while(curT > md){
-        perform();
+        perform();  //equivalent of one forward iteration in the ok function
         ++curT;
     }
 
