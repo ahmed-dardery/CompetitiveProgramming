@@ -56,10 +56,8 @@ enum STATE {
     IN, OUT, BOUNDRY
 };
 
-bool intersect(const segment &ab, const segment &pq, point &ret) {
-
+bool lineLineIntersect(const point& a, const point& b, const point& p, const point& q, point& ret) {
     //handle degenerate cases (2 parallel lines, 2 identical lines,   line is 1 point)
-
     double d1 = cross(vec(a, p), vec(a, b));
     double d2 = cross(vec(a, q), vec(a, b));
     ret = (d1 * q - d2 * p) / (d1 - d2);
