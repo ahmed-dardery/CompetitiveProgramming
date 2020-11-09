@@ -39,8 +39,10 @@ ll BS_last() {
 
 //FFFFFFFFFFFTTTTTTTTTTTTT
 
-//Use when the ok function for BS does N iterations, but you have M queries
-//PBS(0, m-1, 0, n-1)
+//Use when the ok(md) does md iterations
+//iota(sorted, sorted+m, 0)
+//PBS(0, n-1, 0, m-1) //m queries
+int sorted[N], answer[N], curT = 0;
 void PBS(int st, int en, int lf, int rt) {
     if (rt < lf) return;
     if (st == en) {
@@ -52,18 +54,16 @@ void PBS(int st, int en, int lf, int rt) {
 
     int md = (st + en) / 2;
 
-    while(curT > md){
-        --curT;
-        rollback(); //equivalent of one backward iteration in the ok function
+    while (curT > md) {
+        rollback(--curT); //equivalent of one backward iteration in the ok function
     }
-    while(curT > md){
-        perform();  //equivalent of one forward iteration in the ok function
-        ++curT;
+    while (curT < md) {
+        perform(curT++);  //equivalent of one forward iteration in the ok function
     }
 
-    int pivot = partition(sorted + lf, sorted + rt + 1, [](int v) {
-        return ok(v, md);
-    }) - statSort;
+    int pivot = partition(sorted + lf, sorted + rt + 1, [](int qi) {
+        return ok(qi);  //assume you've done your md loop
+    }) - sorted;
 
     PBS(st, md, lf, pivot - 1);
     PBS(md + 1, en, pivot, rt);
