@@ -1,14 +1,15 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+typedef long long ll;
 struct BIT {
     vector<ll> m;
-    int n;
 
-    BIT(int sz) {
-        n = (1 << int(ceil(log2(sz))));
-        m.resize(n);
-    }
+    BIT(int sz) : m(1 << int(__lg(sz) + 1)) {}
 
     void add(int i, ll v) {
-        for (i++; i <= sz; i += (i & -i))
+        for (i++; i <= m.size(); i += (i & -i))
             m[i - 1] += v;
 
     }
@@ -20,22 +21,19 @@ struct BIT {
         return res;
     }
 
-    int find(ll val){
-        int st=0;
-        for(int s=sz>>1 ; s ; s>>=1)
-            if(val>arr[st+s-1])
-                val-=arr[(st+=s)-1];
+    int find(ll val) {
+        int st = 0;
+        for (int s = m.size() >> 1; s; s >>= 1)
+            if (val > m[st + s - 1])
+                val -= m[(st += s) - 1];
         return st;
     }
 };
 
-struct BIT {
+struct BITRNG {
     vector<ll> m, c;
 
-    BIT(int n) {
-        m.resize(n);
-        c.resize(n);
-    }
+    BITRNG(int n) : m(n), c(n) {}
 
     void add(int i, ll dm, ll dc) {
         for (i++; i <= m.size(); i += (i & -i))
@@ -56,6 +54,3 @@ struct BIT {
         add(en + 1, -val, val * en);
     }
 };
-
-
-
