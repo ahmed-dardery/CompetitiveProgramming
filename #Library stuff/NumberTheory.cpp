@@ -42,16 +42,15 @@ void sieve() {
 	}
 }
 
-const int NN = 1e6 + 7;
-int comp[NN + 1], primes[NN + 1], cnt;
-
+//Linear Sieve
 //For a number v = p * x where p is the smallest prime factor in v, x marks v with p
-void sieveLinear() {
-    //memset(comp, 0, sizeof comp);
-    cnt = 0;
+const int NN = 1e5 + 7;
+int comp[NN + 1];
+vector<int> primes;
+void sieve() {
     for (int i = 2; i <= NN; ++i) {
         int &x = comp[i];
-        if (!x) primes[cnt++] = x = i;
+        if (!x) primes.emplace_back(x = i);
         for (int j = 0; primes[j] <= NN / i; j++) {
             comp[i * primes[j]] = primes[j];
             if (primes[j] >= x) break;
