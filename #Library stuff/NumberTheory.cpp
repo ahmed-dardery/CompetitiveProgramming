@@ -47,13 +47,12 @@ int comp[NN + 1], primes[NN + 1], cnt;
 
 //For a number v = p * x where p is the smallest prime factor in v, x marks v with p
 void sieveLinear() {
+    //memset(comp, 0, sizeof comp);
     cnt = 0;
-    int op = 0;
     for (int i = 2; i <= NN; ++i) {
         int &x = comp[i];
-        if (!x) primes[cnt++] = x = i, op++;
+        if (!x) primes[cnt++] = x = i;
         for (int j = 0; primes[j] <= NN / i; j++) {
-            op++;
             comp[i * primes[j]] = primes[j];
             if (primes[j] >= x) break;
         }
