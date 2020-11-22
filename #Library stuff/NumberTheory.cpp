@@ -58,6 +58,38 @@ void sieve() {
     }
 }
 
+const int NN = 1e5 + 7;
+int comp[NN + 1], fac[NN + 1], cnt[NN + 1];
+int func[NN + 1]; //multiplicative function
+vector<int> prime;
+void sieveMul() {
+    func[1] = 1;
+    auto f = [](int p, int k = 1) { return (k == 0) - (k == 1); };
+    for (int i = 2; i <= NN; ++i) {
+        int &x = comp[i];
+        if (!x) {
+            prime.emplace_back(x = i);
+            fac[i] = x;
+            cnt[i] = 1;
+            func[i] = f(i);
+        }
+        for (int j = 0; prime[j] <= NN / i; j++) {
+            comp[i * prime[j]] = prime[j];
+            if (prime[j] == x) {
+                func[i * x] = func[i / fac[i]] * f(x, cnt[i] + 1);
+                //or func[i*x] = something if func is special
+                fac[i * x] = fac[i] * x;
+                cnt[i * x] = cnt[i] + 1;
+                break;
+            } else {
+                func[i * prime[j]] = func[i] * func[prime[j]]; //by definition
+                fac[i * prime[j]] = prime[j];
+                cnt[i * prime[j]] = 1;
+            }
+        }
+    }
+}
+
 vector<pair<int, int>> factorize(int n) {
 	vector<pair<int, int>> v;
 	for (int i = 2; i <= n / i; ++i) {
