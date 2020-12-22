@@ -1,4 +1,4 @@
-//#define MULTIPLE_TESTS
+//#define MULTIPLE_TESTS 0
 #include <bits/stdc++.h>
 #include <ext/numeric>
 #include <ext/pb_ds/assoc_container.hpp>
@@ -28,11 +28,12 @@ const int N = 2e5 + 7, M = 2 * N, MOD = 1e9 + 7, OO = 0x3f3f3f3f;
 //change loop condition to j < n if c is needed.
 struct SuffixArray {
     vi sa, lcp;
-    vector <vi> c;
+    vector <vi> spt;
+    vi iloc;
     SuffixArray(const string &s, int lim = 128) {
         int n = sz(s) + 1;
         vi x(all(s) + 1), y(sz(s) + 1), ws(max(n, lim)), rank(n);
-        sa = lcp = y, iota(all(sa), 0);
+        iloc = sa = lcp = y, iota(all(sa), 0);
         for (int j = 0, p = 0; p < n; j = max(1, j * 2), lim = p) {
             p = j, iota(all(y), n - j);
             for (int i = 0; i < n; ++i) if (sa[i] >= j) y[p++] = sa[i] - j;
@@ -47,19 +48,28 @@ struct SuffixArray {
                 int a = sa[i - 1], b = sa[i];
                 x[b] = (y[a] == y[b] && y[a + j] == y[b + j]) ? p - 1 : p++;
             }
-            c.emplace_back(x);
         }
         for (int i = 1; i < n; ++i) rank[sa[i]] = i;
         for (int k = 0, i = 0, j; i < n - 1; lcp[rank[i++]] = k)
             for (k &&k--, j = sa[rank[i] - 1]; s[i + k] == s[j + k];
         k++ );
+
+        spt.resize(n);
+        for (int i = 0; i < n; ++i) {
+            iloc[sa[i]] = i;
+            spt[i].emplace_back(lcp[i]);
+        }
+        for (int j = 1; (1 << j) <= n; ++j)
+            for (int i = 0; i + (1 << j) <= n; ++i)
+                spt[i].emplace_back(min(spt[i][j - 1], spt[i + (1 << (j - 1))][j - 1]));
     }
-    int compareSubString(int i, int j, int sz) {
-        int k = __lg(sz);
-        if (c[k][i] != c[k][j])
-            return c[k][i] - c[k][j];
-        else
-            return c[k][i + sz - (1 << k)] - c[k][j + sz - (1 << k)];
+    int lcpRange(int i, int j) {
+        if (i == j) return sz(sa) - i - 1;
+        i = iloc[i], j = iloc[j];
+        if(j < i) swap(i, j);
+        ++i;
+        int l = __lg(j - i + 1);
+        return min(spt[i][l], spt[j - (1 << l) + 1][l]);
     }
 };
 
@@ -85,15 +95,14 @@ void MAIN() {
             for (int i = 1; i < sz(s.sa); ++i) {
                 if ((s.sa[i - 1] - sz(str1)) * (s.sa[i] - sz(str1)) < 0 && s.lcp[i] == best) {
                     int j = min(s.sa[i - 1], s.sa[i]);
-                    if(lst == -1 || s.compareSubString(lst, j, best) != 0)
-                    cout << str1.substr(j, best) << endl;
+                    if(lst == -1 || s.lcpRange(lst, j) < best)
+                        cout << str1.substr(j, best) << endl;
                     lst = j;
                 }
             }
         }
     }
 }
-
 int main() {
     ios_base::sync_with_stdio(0), cin.tie(0);
 #ifdef CLION
@@ -101,7 +110,11 @@ int main() {
 #endif
 #ifdef MULTIPLE_TESTS
     int nTests;
+#if MULTIPLE_TESTS
+    cin >> nTests;
+#else
     scanf("%d", &nTests);
+#endif
     for (int tc = 1; tc <= nTests; ++tc) {
         MAIN(tc);
     }
