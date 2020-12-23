@@ -1,46 +1,5 @@
-#include <bits/stdc++.h>
-
-using namespace std;
-const int N = 1e5 + 1;
-
-char pat[N], str[N];
-int F[N];
-
-//I need to know what is the maximum number of characters that can be matched if c is included
-int getNewLen(int len, char c) {
-	while (len && c != pat[len])
-		len = F[len - 1];
-
-	return len + (c == pat[len]);
-}
-//00012345
-//abcabcab
-void computeF() {
-	F[0] = 0;
-	for (int i = 1; pat[i]; i++)
-		F[i] = getNewLen(F[i - 1], pat[i]);
-
-}
-
-//returns vector of starting positions where pattern was found
-vector<int> KMP() {
-	computeF();
-	int len = 0;
-	vector<int> res;
-	for (int i = 0; str[i]; ++i) {
-		len = getNewLen(len, str[i]);
-		if (!pat[len]) res.push_back(i - len + 1);
-	}
-	return res;
-}
-
-
-
-//remove added 1 from n if cyclic
-//change loop condition to j < n if c is needed.
 struct SuffixArray {
     vi sa, lcp;
-    //vector<vi> c;
     SuffixArray(const string &s, int lim = 128) {
         int n = sz(s) + 1; 
         int a, b;
@@ -61,7 +20,6 @@ struct SuffixArray {
                 b = sa[i];
                 x[b] = (y[a] == y[b] && y[a + j] == y[b + j]) ? p - 1 : p++;
             }
-            //c.emplace_back(x);
         }
         for (int i = 1; i < n; ++i) rank[sa[i]] = i;
         for (int k = 0, i = 0, j; i < n - 1; lcp[rank[i++]] = k)
