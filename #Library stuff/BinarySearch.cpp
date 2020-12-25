@@ -68,3 +68,18 @@ void PBS(int st, int en, int lf, int rt) {
     PBS(st, md, lf, pivot - 1);
     PBS(md + 1, en, pivot, rt);
 }
+
+
+
+    //TTTTTTTFFFFFFF
+    //st = just before range
+    //en = just after range
+    //st, en becomes the separation wall.
+    int st = -1, en = n;
+    while(en - st > 1){
+        int md = st+(en-st)/2;
+        if(ok(md))
+            st = md;
+        else
+            en = md;
+    }
