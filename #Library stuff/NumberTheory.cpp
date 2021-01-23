@@ -378,3 +378,10 @@ int C(int n, int r) {
     }
     return ans;
 }
+
+ll inv[N];
+void modularInverse(ll n, ll prime = MOD) {
+    inv[0] = inv[1] = 1;
+    for (int i = 2; i <= n; i++)
+        inv[i] = inv[prime % i] * (prime - prime / i) % prime;
+}
