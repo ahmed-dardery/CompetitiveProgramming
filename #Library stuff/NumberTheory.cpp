@@ -385,3 +385,22 @@ void modularInverse(ll n, ll prime = MOD) {
     for (int i = 2; i <= n; i++)
         inv[i] = inv[prime % i] * (prime - prime / i) % prime;
 }
+
+
+vi ret;
+void recurse(const vector <pii> &f, int i = 0, int num = 1) {
+    if (i == SZ(f)) {
+        ret.emplace_back(num);
+        return;
+    }
+    for (int j = 0; j <= f[i].S; ++j) {
+        recurse(f, i + 1, num);
+        num *= f[i].F;
+    }
+}
+
+vi divisors(int x) {
+    ret.clear();
+    recurse(factorize(x));
+    return ret;
+}
