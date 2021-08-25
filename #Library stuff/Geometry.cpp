@@ -464,6 +464,45 @@ void convexHull(vector<point> pnts, vector<point> &convex) {
             convex.push_back(pnts[i]);
     }
 }
+
+
+bool pointInTriangle(point a, point b, point c, point pt) {
+    ll s1 = abs(cross(b - a, c - a));
+    a -= pt, b -= pt, c -= pt;
+    ll s2 = abs(cross(a, b)) + abs(cross(b, c)) + abs(cross(c, a));
+    return s1 == s2;
+}
+
+//assume p is ordered anticlockwise and p[0] has minimal {y, x}
+bool pointInConvexPolygon(const vector<point> &p, point pnt) {
+    int n = p.size();
+    pnt = pnt - p[0];
+    point fst = p[1] - p[0];
+    point lst = p[n - 1] - p[0];
+
+    if (cross(fst, pnt) != 0 &&
+        sgn(cross(fst, pnt)) != sgn(cross(fst, lst)))
+        return false;
+    if (cross(lst, pnt) != 0 &&
+        sgn(cross(lst, pnt)) != sgn(cross(lst, fst)))
+        return false;
+
+    if (cross(fst, pnt) == 0)
+        return lengthSqr(fst) >= lengthSqr(pnt);
+
+    int l = 1, r = n - 1;
+    while (r - l > 1) {
+        int mid = (l + r) / 2;
+        int pos = mid;
+        if (cross(p[pos] - p[0], pnt) >= 0)
+            l = mid;
+        else
+            r = mid;
+    }
+    int pos = l;
+    return pointInTriangle(p[pos], p[pos + 1], p[0], pnt + p[0]);
+}
+
 double adaptiveSimpsonsAux(function<double(const double &)> f, double a, double b, double eps,
                            double whole, double fa, double fb, double fm, int rec) {
     double m = (a + b) / 2, h = (b - a) / 2;
