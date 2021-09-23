@@ -149,6 +149,8 @@ ll modInverse(ll a, ll m) {
 
 //that means either y = y * c + ((x * (c - 1)) / b) * a;
 //				or  x = x * c + ((y * (c - 1)) / a) * b;
+
+//you can solve aX+bY+cZ=d by gcd(a,b)*R + cZ = d and then aX+bY=gcd(a,b)*R
 bool LDE(ll a, ll b, ll &x, ll &y, ll c, ll &g) {
     g = eGCD(a, b, x, y);
     if (c % g) return false;
