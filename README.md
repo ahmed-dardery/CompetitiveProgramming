@@ -1,4 +1,4 @@
-# ProblemSolving
+# CompetitiveProgramming
 
 Hosts my submissions in Online Judges that do not store the code (namely, uva and live archive)
 
